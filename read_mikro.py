@@ -17,24 +17,12 @@ def extract_params(params: list):
 
 
 def read_file(path: str):
-    f = open(path, "r")
-    text = f.readlines()
-    params = extract_params(text[:100])
-    my_row = 0
-    while text[my_row].find("Z-axis:	") < 0:
-        my_row += 1
-    data = extract_data(text[my_row+1:-7])
-    return data
-
-
-def extract_data(data: list):
-    data = [[float(n.replace('\n', '').replace(',', '.'))
-             for n in i.split('\t')] for i in data]
-    cols = ['index', 'time', 'data']
-    df = pd.DataFrame(data, columns=cols)
-    df.set_index('time', inplace=True)
-    df.drop('index', axis=1, inplace=True)
+    df = pd.read_csv(path, skiprows=6, sep='\t', decimal='.')
+    df.set_index('Datum/Uhrzeit', inplace=True)
+    df.drop('Messwert', axis=1, inplace=True)
+    print(df)
     return df
+
 
 
 def extract_fetures(df: pd.DataFrame, threshold: float):
@@ -57,9 +45,8 @@ def plot(df: pd.DataFrame, threshold: float):
 
 
 if __name__ == '__main__':
-    threshold = 0.000000000001
-    path = 'F:\\test_measurements\\as2.txt'
+    threshold = 4
+    path = 'F:\\test_measurements\\Analog - 07.08.2023 13-26-10.54669.csv'
     df = read_file(path)
-    print(df)
     extract_fetures(df, threshold)
     plot(df, threshold)
